@@ -13,7 +13,7 @@ option(BUILD_SHARED_LIBS  "Sets shared linking on/off"                          
 option(BUILD_EXAMPLES     "Build examples"                                      OFF)
 option(ENABLE_TESTS       "Enable testing"                                      OFF )
 option(USE_OpenMP         "Use OpenMP"                                          ON)
-
+option(USE_MKL            "Use Intel MKL"                                       ON)
 
 #################################################################
 ### Set default policies if CMake is new enough               ###
