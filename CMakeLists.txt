@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(omp-example)
+project(ompexample)
 #enable_language()
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
