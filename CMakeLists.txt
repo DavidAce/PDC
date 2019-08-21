@@ -267,7 +267,6 @@ set(INSTALL_DIRECTORY ${PROJECT_SOURCE_DIR}/libs)
 
 include(cmake-modules/Fetch_Eigen3.cmake)                   # Eigen library
 include(cmake-modules/Fetch_spdlog.cmake)                   # spdlog library
-include(cmake-modules/Fetch_h5pp.cmake)                     # GSL for computing some numerical integrals.
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
@@ -283,15 +282,6 @@ get_target_property(SPDLOG_INFO         spdlog::spdlog   INTERFACE_INCLUDE_DIREC
 message("=============================================================================")
 message("=== SUMMARY OF CMAKE CONFIGURATION:  THE FOLLOWING LIBRARIES WILL BE USED ===")
 message("=============================================================================")
-message("    BLAS           LIB:  ${BLAS_INFO_LIB}")
-message("                   INC:  ${BLAS_INFO_INC}")
-message("-----------------------------------------------------------------------------")
-message("    LAPACK         LIB:  ${LAPACK_INFO_LIB}")
-message("                   INC:  ${LAPACK_INFO_INC}")
-message("-----------------------------------------------------------------------------")
-message("    LAPACKE        LIB:  ${LAPACKE_INFO_LIB}")
-message("                   INC:  ${LAPACKE_INFO_INC}")
-message("-----------------------------------------------------------------------------")
 message("    EIGEN3         INC:  ${EIGEN_INFO}")
 message("-----------------------------------------------------------------------------")
 message("    SPDLOG         INC:  ${SPDLOG_INFO}")
