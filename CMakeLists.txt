@@ -14,6 +14,10 @@ option(BUILD_EXAMPLES     "Build examples"                                      
 option(ENABLE_TESTS       "Enable testing"                                      OFF )
 option(USE_OpenMP         "Use OpenMP"                                          ON)
 option(USE_MKL            "Use Intel MKL"                                       ON)
+option(DOWNLOAD_HDF5      "Download and install HDF5 if not found"              OFF)
+option(DOWNLOAD_SPDLOG    "Download and install spdlog if not found"            OFF)
+option(DOWNLOAD_EIGEN3    "Download and install Eigen3 if not found"            ON)
+option(DOWNLOAD_ALL       "Download and install all dependencies if not found"  ON )
 
 #################################################################
 ### Set default policies if CMake is new enough               ###

@@ -26,7 +26,7 @@ EOF
 }
 
 
-target="all"
+target="omp-example"
 build="Release"
 clear_cmake=""
 clear_libs=""
