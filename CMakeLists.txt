@@ -13,7 +13,6 @@ option(BUILD_SHARED_LIBS  "Sets shared linking on/off"                          
 option(BUILD_EXAMPLES     "Build examples"                                      OFF)
 option(ENABLE_TESTS       "Enable testing"                                      OFF )
 option(USE_OpenMP         "Use OpenMP"                                          ON)
-option(USE_MKL            "Use Intel MKL"                                       ON)
 option(DOWNLOAD_HDF5      "Download and install HDF5 if not found"              OFF)
 option(DOWNLOAD_SPDLOG    "Download and install spdlog if not found"            OFF)
 option(DOWNLOAD_EIGEN3    "Download and install Eigen3 if not found"            ON)
@@ -265,27 +264,15 @@ target_compile_options (${PROJECT_NAME} PRIVATE "$<$<CONFIG:PROFILE>:${PROFILE_O
 ##########################################
 set(BUILD_DIRECTORY   ${PROJECT_SOURCE_DIR}/cmake-build-libs)
 set(INSTALL_DIRECTORY ${PROJECT_SOURCE_DIR}/libs)
-include(cmake-modules/FindGFortran.cmake)
 
-if(USE_MKL)
-    include(cmake-modules/Find_dont_install_INTELMKL.cmake)    # MKL - Intel's math Kernel Library, use the BLAS implementation in Eigen and Arpack. Includes lapack.
-endif()
-include(cmake-modules/FindLAPACKE.cmake)                    # If MKL is not found openblas will be used instead. Includes lapack.
 include(cmake-modules/Fetch_Eigen3.cmake)                   # Eigen library
 include(cmake-modules/Fetch_spdlog.cmake)                   # spdlog library
 include(cmake-modules/Fetch_h5pp.cmake)                     # GSL for computing some numerical integrals.
 
-target_link_libraries(${PROJECT_NAME} PRIVATE lapacke)
 target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${COMPILER_LFLAGS})
 
-get_target_property(BLAS_INFO_LIB       blas             INTERFACE_LINK_LIBRARIES)
-get_target_property(BLAS_INFO_INC       blas             INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(LAPACK_INFO_LIB     lapack           INTERFACE_LINK_LIBRARIES)
-get_target_property(LAPACK_INFO_INC     lapack           INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(LAPACKE_INFO_LIB    lapacke          INTERFACE_LINK_LIBRARIES)
-get_target_property(LAPACKE_INFO_INC    lapacke          INTERFACE_INCLUDE_DIRECTORIES)
 get_target_property(EIGEN_INFO          Eigen3::Eigen    INTERFACE_INCLUDE_DIRECTORIES)
 get_target_property(SPDLOG_INFO         spdlog::spdlog   INTERFACE_INCLUDE_DIRECTORIES)
 
