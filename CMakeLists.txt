@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(ompexample)
+project(ompadvanced)
 #enable_language()
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -174,7 +174,7 @@ endif()
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 file(GLOB_RECURSE HEADERS "src/*.h")
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-target_include_directories(${PROJECT_NAME} PUBLIC source)
+target_include_directories(${PROJECT_NAME} PUBLIC src)
 
 ################################################
 ###  Force cmake to find .a library suffixes ###

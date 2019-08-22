@@ -7,19 +7,9 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-std::pair<double,double> get_stats(std::vector<double> & v){
-
-    double sum = std::accumulate(v.begin(), v.end(), 0.0);
-    double mean = sum / v.size();
-
-    double sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
-    double stdev = std::sqrt(std::abs(sq_sum / v.size() - mean * mean));
-//    std::cout << "sq_sum: " << sq_sum << std::endl;
-//    std::cout << "v.size: " << v.size() << std::endl;
-//    std::cout << "mean:   " << mean << std::endl;
-//    std::cout << "stdev:  " << stdev << std::endl;
-    return std::make_pair(mean, stdev);
-}
+#include <stats/stats.h>
+#include <shwater2d/shwater2d_original.h>
+#include <shwater2d/shwater2d_modern.h>
 
 void compute_pi(int num, int reps){
     auto log = spdlog::get("OMP");
@@ -50,22 +40,17 @@ int main (){
     auto log = spdlog::stdout_color_mt("OMP");
     log->set_pattern("[%Y-%m-%d %H:%M:%S][%n]%^[%=8l]%$ %v");
 
-    omp_set_num_threads(32);
+    omp_set_num_threads(8);
     #pragma omp parallel for ordered shared(log) default(none)
     for (int i = 0; i < omp_get_num_threads(); i++){
         #pragma omp ordered
         log->info("hello from id {}", omp_get_thread_num());
     }
 
+    shwater2d_original();
 
-    compute_pi(1,10);
-    compute_pi(2,10);
-    compute_pi(4,10);
-    compute_pi(8,10);
-    compute_pi(16,10);
-    compute_pi(32,10);
-    compute_pi(64,10);
-    compute_pi(128,10);
+    Shwater2D sim;
+    sim.shwater2d_run();
     return 0;
 
 }
