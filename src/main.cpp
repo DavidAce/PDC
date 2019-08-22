@@ -40,12 +40,12 @@ int main (){
     auto log = spdlog::stdout_color_mt("OMP");
     log->set_pattern("[%Y-%m-%d %H:%M:%S][%n]%^[%=8l]%$ %v");
 
-    omp_set_num_threads(8);
-    #pragma omp parallel for ordered shared(log) default(none)
-    for (int i = 0; i < omp_get_num_threads(); i++){
-        #pragma omp ordered
-        log->info("hello from id {}", omp_get_thread_num());
-    }
+//    omp_set_num_threads(8);
+//    #pragma omp parallel for ordered shared(log) default(none)
+//    for (int i = 0; i < omp_get_num_threads(); i++){
+//        #pragma omp ordered
+//        log->info("hello from id {}", omp_get_thread_num());
+//    }
 
     shwater2d_original();
 
