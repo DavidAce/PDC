@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     // Call the GPU version
     gpu_helloworld<<<grid, block>>>();
     cudaDeviceSynchronize();
-
+    
     ////////////////
     // TO-DO #1.2 ////////////////////
     // Introduce your changes here! //

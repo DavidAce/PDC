@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 module load cuda/7.0
 module load cmake/3.11.4
