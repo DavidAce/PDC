@@ -43,17 +43,22 @@ private:
 
     double gettime();
     void validate(const TType &Q);
+    double fx(TType &Q,int i, int j, int k);
     void  fx(TType &Q);
     void  Fx(TType &Q,  double dxdt);
 
     void fy(TType &Q);
+    double fy(TType &Q,int i, int j, int k);
     void Fy(TType &Q, double dydt);
+    double Fy(TType &Q, double dydt, int i, int j, int k);
     void laxf_scheme_2d(TType &Q, double dx, double dy, double dt);
     void solver(TType &Q, double dx, double dy, double dt);
 
 public:
     class_tic_toc t_loop1;
     class_tic_toc t_loop2;
+    class_tic_toc t_loop3;
+    class_tic_toc t_loop4;
     Shwater2D() = default;
     int shwater2d_run();
 
