@@ -127,10 +127,15 @@ int main(int argc, char **argv)
     cudaMalloc(&d_y, D_ARRAY_SIZE*sizeof(float));
     cudaMemcpy(d_x, x, D_ARRAY_SIZE,cudaMemcpyHostToDevice); 
     cudaMemcpy(d_y, y, D_ARRAY_SIZE,cudaMemcpyHostToDevice);
-
+    tval starttime;
+    tval endtime;
+    gettimeofday(&starttime,NULL);
     // Call the CPU code
     cpu_saxpy(ARRAY_SIZE, a, x, y);
-    
+    gettimeofday(&endtime,NULL);
+    int elapsed = get_elapsed(starttime,endtime);
+    printf("Time elapsed %d \n", elapsed);
+
     // Calculate the "hash" of the result from the CPU
     error = generate_hash(ARRAY_SIZE, y);
     
@@ -138,12 +143,10 @@ int main(int argc, char **argv)
     // TO-DO #2.4 ////////////////////////////////////////
     // Call the GPU kernel gpu_saxpy() with d_x and d_y //
     //////////////////////////////////////////////////////
-    tval starttime;
-    tval endtime;
     gettimeofday(&starttime,NULL);
     gpu_saxpy<<<NUM_BLOCKS, BLOCK_SIZE>>>(a, d_x,d_y);
     gettimeofday(&endtime,NULL);
-    int elapsed = get_elapsed(starttime,endtime);
+    elapsed = get_elapsed(starttime,endtime);
     printf("Time elapsed %d \n", elapsed);
     //////////////////
     // TO-DO #2.5.1 ////////////////////////////////////////////////////
