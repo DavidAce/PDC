@@ -145,9 +145,7 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////
     gettimeofday(&starttime,NULL);
     gpu_saxpy<<<NUM_BLOCKS, BLOCK_SIZE>>>(a, d_x,d_y);
-    gettimeofday(&endtime,NULL);
-    elapsed = get_elapsed(starttime,endtime);
-    printf("Time elapsed %d \n", elapsed);
+
     //////////////////
     // TO-DO #2.5.1 ////////////////////////////////////////////////////
     // Copy the content of d_y from the GPU to the array y on the CPU //
@@ -155,7 +153,9 @@ int main(int argc, char **argv)
     
     cudaMemcpy(x, d_x, ARRAY_SIZE,cudaMemcpyDeviceToHost); 
     cudaMemcpy(y, d_y, ARRAY_SIZE,cudaMemcpyDeviceToHost);
-
+    gettimeofday(&endtime,NULL);
+    elapsed = get_elapsed(starttime,endtime);
+    printf("Time elapsed %d \n", elapsed);
 
     // Calculate the "hash" of the result from the GPU
     error = fabsf(error - generate_hash(D_ARRAY_SIZE, y));
