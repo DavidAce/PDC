@@ -45,6 +45,32 @@ void cpu_saxpy(int n, float a, float *x, float *y)
 // TO-DO #2.6 /////////////////////////////////////////////////////////////
 // Declare the kernel gpu_saxpy() with the same interface as cpu_saxpy() //
 ///////////////////////////////////////////////////////////////////////////
+__global__ void gpu_saxpy(float a, float *x, float *y)
+{
+    const int i = blockIdx.x*blockDim.x + threadIdx.x;
+    y[i] = a * x[i] + y[i];
+
+}
+
+
+
+int compute_num_blocks(){
+    int i = ARRAY_SIZE/BLOCK_SIZE;
+    int imax = ARRAY_SIZE/BLOCK_SIZE + BLOCK_SIZE;
+    while (ARRAY_SIZE % i != 0 and i <= imax ){
+        i++;
+    }
+    return i;
+}
+
+int pad_arraysize(){
+    int i = ARRAY_SIZE;
+    while(i % 32 != 0){
+        i++;
+    }
+    return i;
+}
+
 
 int main(int argc, char **argv)
 {
@@ -52,17 +78,25 @@ int main(int argc, char **argv)
     float *x    = NULL;
     float *y    = NULL;
     float error = 0.0f;
-    
+
     ////////////////
     // TO-DO #2.2 ///////////////////////////////
     // Introduce the grid and block definition //
     /////////////////////////////////////////////
-    
+    const int NUM_BLOCKS = compute_num_blocks();
+    dim3 grid(NUM_BLOCKS  ,1,1); // 1 block in the grid
+    dim3 block(BLOCK_SIZE,1,1); // 256 threads per block
+
+    printf("grid: %d,  block: %d\n", NUM_BLOCKS, BLOCK_SIZE);
+
     //////////////////
     // TO-DO #2.3.1 /////////////////////////////
     // Declare the device pointers d_x and d_y //
     /////////////////////////////////////////////
-    
+    float *d_x = NULL;
+    float *d_y = NULL;
+ 
+
     // Make sure the constant is provided
     if (argc != 2)
     {
@@ -86,7 +120,14 @@ int main(int argc, char **argv)
     // TO-DO #2.3.2 ////////////////////////////////////////////////////////
     // Allocate d_x and d_y on the GPU, and copy the content from the CPU //
     ////////////////////////////////////////////////////////////////////////
-    
+    int D_ARRAY_SIZE = pad_arraysize();
+    printf("Actual array size: %d\n", ARRAY_SIZE);
+    printf("Padded array size: %d\n", D_ARRAY_SIZE);
+    cudaMalloc(&d_x, D_ARRAY_SIZE*sizeof(float));
+    cudaMalloc(&d_y, D_ARRAY_SIZE*sizeof(float));
+    cudaMemcpy(d_x, x, D_ARRAY_SIZE,cudaMemcpyHostToDevice); 
+    cudaMemcpy(d_y, y, D_ARRAY_SIZE,cudaMemcpyHostToDevice);
+
     // Call the CPU code
     cpu_saxpy(ARRAY_SIZE, a, x, y);
     
@@ -97,12 +138,18 @@ int main(int argc, char **argv)
     // TO-DO #2.4 ////////////////////////////////////////
     // Call the GPU kernel gpu_saxpy() with d_x and d_y //
     //////////////////////////////////////////////////////
-    
+    gpu_saxpy<<<NUM_BLOCKS, BLOCK_SIZE>>>(a, d_x,d_y);
+
+
     //////////////////
     // TO-DO #2.5.1 ////////////////////////////////////////////////////
     // Copy the content of d_y from the GPU to the array y on the CPU //
     ////////////////////////////////////////////////////////////////////
     
+    cudaMemcpy(x, d_x, ARRAY_SIZE,cudaMemcpyDeviceToHost); 
+    cudaMemcpy(y, d_y, ARRAY_SIZE,cudaMemcpyDeviceToHost);
+
+
     // Calculate the "hash" of the result from the GPU
     error = fabsf(error - generate_hash(ARRAY_SIZE, y));
     
@@ -122,6 +169,7 @@ int main(int argc, char **argv)
     // TO-DO #2.5.2 /////////
     // Release d_x and d_y //
     /////////////////////////
-    
+    cudaFree(d_x); // Free the memory
+    cudaFree(d_y); // Free the memory
     return 0;
 }
