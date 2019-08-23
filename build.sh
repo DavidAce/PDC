@@ -1,7 +1,7 @@
 #/bin/bash
 module purge
 module load cuda/9.1
-module load gcc/8.2.0
+module load gcc/6.2.0
 module load cmake/3.11.4
 
 export CC=gcc
