@@ -1,4 +1,3 @@
-#!/bin/bash
 module load cuda/7.0
 module load cmake/3.11.4
 module load clang/7.0.0
