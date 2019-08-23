@@ -48,8 +48,8 @@ void cpu_saxpy(int n, float a, float *x, float *y)
 __global__ void gpu_saxpy(float a, float *x, float *y)
 {
     const int i = blockIdx.x*blockDim.x + threadIdx.x;
-    y[i] = a * x[i] + y[i];
-
+    if (i > ARRAY_SIZE) y[i] = 0 ;
+    else  y[i] = a * x[i] + y[i];
 }
 
 
@@ -138,9 +138,13 @@ int main(int argc, char **argv)
     // TO-DO #2.4 ////////////////////////////////////////
     // Call the GPU kernel gpu_saxpy() with d_x and d_y //
     //////////////////////////////////////////////////////
+    tval starttime;
+    tval endtime;
+    gettimeofday(&starttime,NULL);
     gpu_saxpy<<<NUM_BLOCKS, BLOCK_SIZE>>>(a, d_x,d_y);
-
-
+    gettimeofday(&endtime,NULL);
+    int elapsed = get_elapsed(starttime,endtime);
+    printf("Time elapsed %d \n", elapsed);
     //////////////////
     // TO-DO #2.5.1 ////////////////////////////////////////////////////
     // Copy the content of d_y from the GPU to the array y on the CPU //
@@ -151,7 +155,7 @@ int main(int argc, char **argv)
 
 
     // Calculate the "hash" of the result from the GPU
-    error = fabsf(error - generate_hash(ARRAY_SIZE, y));
+    error = fabsf(error - generate_hash(D_ARRAY_SIZE, y));
     
     // Confirm that the execution has finished
     printf("Execution finished (error=%.6f).\n", error);
