@@ -1,0 +1,5 @@
+
+#!/bin/bash
+module load cuda/7.0
+
+sbatch run.sh
