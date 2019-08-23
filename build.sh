@@ -1,8 +1,8 @@
 #/bin/bash
-module load clang/7.0.0
-module load cuda/7.0
-module load cmake/3.11.4
+module purge
+module load cuda/9.1
 module load gcc/8.2.0
+module load cmake/3.11.4
 
 export CC=gcc
 export CXX=g++
