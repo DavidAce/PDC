@@ -8,6 +8,5 @@
 #SBATCH --gres=gpu:K420:1
 #SBATCH --time=00:01:00 
 #SBATCH -A edu19.summer
-#SBATCH --reservation=summer-2019-08-26
 
 srun ../build/lab3
