@@ -1,7 +1,6 @@
 
 #include <stdio.h>
 #include <sys/time.h>
-
 #define BLOCK_SIZE 256
 #define ARRAY_SIZE 16777216
 
