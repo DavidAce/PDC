@@ -10,4 +10,4 @@
 #SBATCH -A edu19.summer
 #SBATCH --reservation=summer-2019-08-23
 
-srun ../build/lab2 0.5
+srun ../build/lab3
