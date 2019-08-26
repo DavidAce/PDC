@@ -10,5 +10,5 @@
 #SBATCH --time=00:01:00 
 #SBATCH -A edu19.summer
 #SBATCH --reservation=summer-2019-08-26
-
-srun  ../build/lab3 ../images/lab02.bmp
+#SBATCH --chdir=/afs/pdc.kth.se/home/a/aceituno/klemming/PDC/
+srun  ./build/lab3 images/lab02.bmp
