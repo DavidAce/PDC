@@ -1,8 +1,8 @@
 #!/bin/bash -l
 #SBATCH -J cuda-lab03
 #SBATCH --kill-on-invalid-dep=yes
-#SBATCH --output=logs/cuda.out
-#SBATCH --error=logs/cuda.err
+#SBATCH --output=slurm/logs/cuda.out
+#SBATCH --error=slurm/logs/cuda.err
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
 #SBATCH -C Haswell
