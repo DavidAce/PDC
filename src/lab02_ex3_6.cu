@@ -227,8 +227,20 @@ __device__ float gpu_applyFilter(float *image, int stride, float *matrix, int fi
     //                                                          //
     // Does it make sense to have a separate gpu_applyFilter()? //
     //////////////////////////////////////////////////////////////
+    float pixel = 0.0f;
     
-    return 0.0f;
+    for (int h = 0; h < filter_dim; h++)
+    {
+        int offset        = h * stride;
+        int offset_kernel = h * filter_dim;
+        
+        for (int w = 0; w < filter_dim; w++)
+        {
+            pixel += image[offset + w] * matrix[offset_kernel + w];
+        }
+    }
+    
+    return pixel;
 }
 
 /**
@@ -272,6 +284,8 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
         
         image_out[offset] = gpu_applyFilter(&image[offset_t],
                                             width, gaussian, 3);
+
+
     }
 }
 
@@ -392,11 +406,11 @@ int main(int argc, char **argv)
         store_result("cpu_2", elapsed[0], elapsed[1], bitmap.width, bitmap.height, image_out[1]);
         // Launch the GPU version
         gettimeofday(&t[0], NULL);
-        // gpu_gaussian<<<grid, block>>>(bitmap.width, bitmap.height,
-        //                               d_image_out[0], d_image_out[1]);
+        gpu_gaussian<<<grid, block>>>(bitmap.width, bitmap.height,
+                                      d_image_out[0], d_image_out[1]);
         
-        // cudaMemcpy(image_out[1], d_image_out[1],
-        //            image_size * sizeof(float), cudaMemcpyDeviceToHost);
+        cudaMemcpy(image_out[1], d_image_out[1],
+                    image_size * sizeof(float), cudaMemcpyDeviceToHost);
         gettimeofday(&t[1], NULL);
         
         elapsed[1] = get_elapsed(t[0], t[1]);

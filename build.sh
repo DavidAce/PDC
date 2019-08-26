@@ -8,5 +8,5 @@ export CC=gcc
 export CXX=g++
 cmake -E make_directory build
 cd build
-cmake -DCMAKE_BUILD_TYPE=$build  -G "CodeBlocks - Unix Makefiles" ../
+cmake -DCMAKE_BUILD_TYPE=Release  -G "CodeBlocks - Unix Makefiles" ../
 cmake --build .  -- -j 4
