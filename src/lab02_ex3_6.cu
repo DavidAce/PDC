@@ -346,7 +346,7 @@ __global__ void gpu_sobel(int width, int height, float *image, float *image_out)
 
 int main(int argc, char **argv)
 {
-    printf("Started lab 3");
+    printf("Started lab 3\n");
 
     BMPImage bitmap          = { 0 };
     float    *d_bitmap       = { 0 };
