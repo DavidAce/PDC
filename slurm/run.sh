@@ -1,4 +1,5 @@
 #!/bin/bash -l
+#SBATCH -J cuda-lab03
 #SBATCH --kill-on-invalid-dep=yes
 #SBATCH --output=logs/cuda.out
 #SBATCH --error=logs/cuda.err
@@ -10,4 +11,4 @@
 #SBATCH -A edu19.summer
 #SBATCH --reservation=summer-2019-08-26
 
-srun -n 1 ../build/lab3 ../images/lab02.bmp
+srun  ../build/lab3 ../images/lab02.bmp
