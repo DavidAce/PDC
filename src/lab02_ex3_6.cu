@@ -137,7 +137,7 @@ void store_result(const char suffix[], double elapsed,
     writeBMPGrayscale(width, height, image, path);
     
     printf("Step #%s Completed - Result stored in \"%s\".\n", suffix, path);
-    printf("Elapsed: %fms / ", elapsed);
+    printf("Elapsed: %fms / \n", elapsed);
 }
 
 /**
