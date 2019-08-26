@@ -128,7 +128,7 @@ double get_elapsed(tval t0, tval t1)
 /**
  * Stores the result image and prints a message.
  */
-void store_result(const char suffix[], double elapsed_cpu, double elapsed_gpu,
+void store_result(const char suffix[], double elapsed,
                      int width, int height, float *image)
 {
     char path[255];
@@ -137,16 +137,7 @@ void store_result(const char suffix[], double elapsed_cpu, double elapsed_gpu,
     writeBMPGrayscale(width, height, image, path);
     
     printf("Step #%s Completed - Result stored in \"%s\".\n", suffix, path);
-    printf("Elapsed CPU: %fms / ", elapsed_cpu);
-    
-    if (elapsed_gpu == 0)
-    {
-        printf("[GPU version not available]\n");
-    }
-    else
-    {
-        printf("Elapsed GPU: %fms\n", elapsed_gpu);
-    }
+    printf("Elapsed: %fms / ", elapsed);
 }
 
 /**
@@ -402,9 +393,9 @@ int main(int argc, char **argv)
         cpu_grayscale(bitmap.width, bitmap.height, bitmap.data, image_out[0]);
         gettimeofday(&t[1], NULL);
         // Store the final result image with the Sobel filter applied
-        store_result("cpu_1", elapsed[0], elapsed[1], bitmap.width, bitmap.height, image_out[0]);
         elapsed[0] = get_elapsed(t[0], t[1]);
-        
+        store_result("cpu_1", elapsed[0], bitmap.width, bitmap.height, image_out[0]);
+
         // Launch the GPU version
         gettimeofday(&t[0], NULL);
         gpu_grayscale<<<grid, block>>>(bitmap.width, bitmap.height,
@@ -417,7 +408,7 @@ int main(int argc, char **argv)
         elapsed[1] = get_elapsed(t[0], t[1]);
         
         // Store the result image in grayscale
-        store_result("gpu_1", elapsed[0], elapsed[1], bitmap.width, bitmap.height, image_out[0]);
+        store_result("gpu_1", elapsed[1], bitmap.width, bitmap.height, image_out[0]);
     }
     
     // Step 2: Apply a 3x3 Gaussian filter
@@ -429,7 +420,7 @@ int main(int argc, char **argv)
         
         elapsed[0] = get_elapsed(t[0], t[1]);
         // Store the final result image with the Sobel filter applied
-        store_result("cpu_2", elapsed[0], elapsed[1], bitmap.width, bitmap.height, image_out[1]);
+        store_result("cpu_2", elapsed[0], bitmap.width, bitmap.height, image_out[1]);
         // Launch the GPU version
         gettimeofday(&t[0], NULL);
         gpu_gaussian<<<grid, block>>>(bitmap.width, bitmap.height,
@@ -442,7 +433,7 @@ int main(int argc, char **argv)
         elapsed[1] = get_elapsed(t[0], t[1]);
         
         // Store the result image with the Gaussian filter applied
-        store_result("gpu_2", elapsed[0], elapsed[1], bitmap.width, bitmap.height, image_out[1]);
+        store_result("gpu_2", elapsed[1], bitmap.width, bitmap.height, image_out[1]);
     }
     
     // Step 3: Apply a Sobel filter
@@ -454,7 +445,7 @@ int main(int argc, char **argv)
         
         elapsed[0] = get_elapsed(t[0], t[1]);
         // Store the final result image with the Sobel filter applied
-        store_result("cpu_3", elapsed[0], elapsed[1], bitmap.width, bitmap.height, image_out[0]);
+        store_result("cpu_3", elapsed[0], bitmap.width, bitmap.height, image_out[0]);
         // Launch the GPU version
         gettimeofday(&t[0], NULL);
         gpu_sobel<<<grid, block>>>(bitmap.width, bitmap.height,
@@ -467,7 +458,7 @@ int main(int argc, char **argv)
         elapsed[1] = get_elapsed(t[0], t[1]);
         
         // Store the final result image with the Sobel filter applied
-        store_result("gpu_3", elapsed[0], elapsed[1], bitmap.width, bitmap.height, image_out[0]);
+        store_result("gpu_3", elapsed[1], bitmap.width, bitmap.height, image_out[0]);
     }
     
     // Release the allocated memory
