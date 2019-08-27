@@ -1,9 +1,18 @@
 cmake_minimum_required(VERSION 3.10)
 project(mpi-lab1)
 enable_language(CXX)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake-modules)
 
-add_executable(${PROJECT_NAME} src/parallel_search-parallel.cpp src/class_tic_toc.cpp)
+add_executable(${PROJECT_NAME} src/game_of_life-parallel.cpp)
 
+####################
+###  Link Eigen  ###
+####################
+set(BUILD_DIRECTORY   ${PROJECT_SOURCE_DIR}/cmake-build-libs)
+set(INSTALL_DIRECTORY ${PROJECT_SOURCE_DIR}/libs)
+option(DOWNLOAD_EIGEN3    "Download and install Eigen3 if not found"            ON)
+include(cmake-modules/Fetch_Eigen3.cmake)                   # Eigen library
+target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
 
 
 ##################
@@ -14,6 +23,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${MPI_LIBRARIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
 set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
 target_include_directories(${PROJECT_NAME} PRIVATE ${MPI_INCLUDE_PATH})
+
+
 
 
 
