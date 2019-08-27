@@ -4,7 +4,7 @@
 void srandom (unsigned seed);
 double dboard (int darts);
 #define DARTS 50000     /* number of throws at dartboard */
-#define ROUNDS 10       /* number of times "darts" is iterated */
+#define ROUNDS 100       /* number of times "darts" is iterated */
 #define MASTER 0        /* task ID of master task */
 
 int main (int argc, char *argv[])
@@ -16,7 +16,7 @@ int main (int argc, char *argv[])
           pisum;          /* sum of workers pi values */
   int     i, n;
 
-  srandom (0);
+  srandom (2);
 
   avepi = 0;
   for (i = 0; i < ROUNDS; i++) {

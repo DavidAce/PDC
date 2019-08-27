@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(mpi-lab1-ex1)
 enable_language(CXX)
 
-add_executable(${PROJECT_NAME} src/pass_baton.cpp)
+add_executable(${PROJECT_NAME} src/pi_parallel.cpp src/class_tic_toc.cpp)
 
 
 
