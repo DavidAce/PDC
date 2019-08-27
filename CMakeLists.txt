@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
-project(mpi-lab1-ex1)
+project(mpi-lab1)
 enable_language(CXX)
 
-add_executable(${PROJECT_NAME} src/pi_parallel.cpp src/class_tic_toc.cpp)
+add_executable(${PROJECT_NAME} src/parallel_search-parallel.cpp src/class_tic_toc.cpp)
 
 
 

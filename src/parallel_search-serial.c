@@ -9,8 +9,8 @@ int main (int argc, char *argv[])
 
   /* File b.data has the target value on the first line
      The remaining 300 lines of b.data have the values for the b array */
-  infile = fopen("b.data","r" ) ;
-  outfile = fopen("found.data","w") ;
+  infile = fopen("../data/b.data","r" ) ;
+  outfile = fopen("../data/found.data","w") ;
     
   /* read in target */
   fscanf(infile,"%d", &target);
