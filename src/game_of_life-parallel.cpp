@@ -52,6 +52,9 @@ int main(int argc, char *argv[])
     Eigen::ArrayXi rite_col_send(NI);
     Eigen::ArrayXi left_col_recv(NI);
     Eigen::ArrayXi rite_col_recv(NI);
+    //Define neighbors to the left and right, wrapping around the last worker to the first
+    int nb_left = mod(work_id-1,work_size);
+    int nb_rite = mod(work_id+1,work_size);
 
     /*  time steps */
     for(int n=0; n<NSTEPS; n++){
@@ -80,13 +83,12 @@ int main(int argc, char *argv[])
 
 
         /* Syncronize borders */
-        int nb_left = mod(work_id-1,work_size);
-        int nb_rite = mod(work_id+1,work_size);
-
         left_col_send = new_board.col(1);
         rite_col_send = new_board.col(NJ-2);
-        left_col_recv(NI);
-        rite_col_recv(NI);
+
+        /* First, everybody sends their right column to the right and simultaneously receives a left column from the left */
+        /* Then, everybody sends their left column to the left and simultaneously receives a right column from the right*/
+
         MPI_Sendrecv(rite_col_send.data(),NI,MPI_INT,nb_rite,work_id,left_col_recv.data(),NI,MPI_INT,nb_left,nb_left,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
         MPI_Sendrecv(left_col_send.data(),NI,MPI_INT,nb_left,work_id,rite_col_recv.data(),NI,MPI_INT,nb_rite,nb_rite,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
@@ -98,15 +100,6 @@ int main(int argc, char *argv[])
 
     }
 
-
-
-        /* There are two borders per board, left and right columns.
-         * There left column of the leftmost board is equal
-
-        MPI_
-
-
-    }
 
     /*  Iterations are done; sum the number of live cells */
     isum = old_board.sum();
