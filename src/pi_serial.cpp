@@ -65,6 +65,8 @@ Explanation of constants and variables used in this function:
 
 #include <stdio.h>
 #include <stdlib.h>
+
+
 #define sqr(x) ((x)*(x))
 long random(void);
 
