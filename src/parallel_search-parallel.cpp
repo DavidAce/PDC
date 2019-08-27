@@ -71,6 +71,8 @@ int main (int argc, char *argv[])
     if(work_id == MASTER){
         std::cout << "Loading file from master" << std::endl;
         std::tie(target,global_array) = load_file("../data/b.data");
+        // Split the global array into local arrays. Because the number of items may not be divisible
+        // by the number of workers, we need to do this with variable lengt scatter, Scatterv.
         int global_size = global_array.size();
         int local_size  = global_size/work_size;
         int chunk_size  = local_size;
@@ -93,8 +95,9 @@ int main (int argc, char *argv[])
     MPI_Bcast(displacements.data(),work_size,MPI_INT,MASTER,MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
 
-
+    // Let each thread search in its own local array
     auto match_array = find_target(local_array,displacements[work_id]+1,target); //Add 1 to displacement because first element in file is the target
+    //Write the results to their respective files if they found anything
     if(not match_array.empty()){
         std::ofstream outfile(outfilename);
         for(auto & match :match_array){
@@ -103,6 +106,7 @@ int main (int argc, char *argv[])
         }
     }
 
+    //Collect the results into master. Remember that the match_array is a variable length array.
     int matchsize = match_array.size();
     std::vector<int> matchsizes(work_size);
     std::vector<int> allmatches;
@@ -119,7 +123,7 @@ int main (int argc, char *argv[])
 
     }
     MPI_Gatherv(match_array.data(),match_array.size(),MPI_INT,allmatches.data(),matchsizes.data(),displacements.data(),MPI_INT,MASTER,MPI_COMM_WORLD );
-
+    //let master write all the results into a single file
     if(work_id == MASTER){
         std::ofstream masteroutfile("../data/found_parallel.data");
         for(auto & match :allmatches){
