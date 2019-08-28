@@ -18,22 +18,17 @@ int main (int argc, char *argv[])
         printf("ID %d sending  secret: %d\n", work_id, secret);
     }
 
-    int send_id = 0;
-    int recv_id = 1;
-    while (recv_id < work_size){
-        if (work_id == send_id)
-            MPI_Send(&secret,1,MPI_INT,work_id+1, work_id,MPI_COMM_WORLD);
-        if (work_id == recv_id){
-            MPI_Recv(&secret,1,MPI_INT,work_id-1, work_id-1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            printf("ID %d received secret: %d\n", work_id,secret);
+    for (int send_id = 0; send_id < work_size - 1; send_id++){
+        if (work_id == send_id){
+            MPI_Send(&secret,1,MPI_INT,send_id+1, work_id,MPI_COMM_WORLD);
         }
-
-        send_id++;
-        recv_id++;
+        else if (work_id == send_id+1){
+            MPI_Recv(&secret,1,MPI_INT,send_id, send_id, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            printf("ID %d received secret: %d\n", work_id,secret);
+            secret = secret + 1;
+        }
         MPI_Barrier(MPI_COMM_WORLD);
     }
-
-
 
     MPI_Finalize();
 
