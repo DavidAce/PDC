@@ -3,7 +3,7 @@ project(mpi-lab3)
 enable_language(CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake-modules)
 
-add_executable(${PROJECT_NAME} src/hello_mpi.cpp)
+add_executable(${PROJECT_NAME} src/mpi_derived_types_parallel.cpp)
 
 ####################
 ###  Link Eigen  ###
