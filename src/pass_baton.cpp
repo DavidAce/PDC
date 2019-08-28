@@ -17,19 +17,19 @@ int main (int argc, char *argv[])
         secret = 41;
         printf("ID %d sending  secret: %d\n", work_id, secret);
     }
-
+    MPI_Status status;
+    MPI_Request req1,req2;
     for (int send_id = 0; send_id < work_size - 1; send_id++){
         if (work_id == send_id){
-            MPI_Send(&secret,1,MPI_INT,send_id+1, work_id,MPI_COMM_WORLD);
+            MPI_Isend(&secret,1,MPI_INT,send_id+1, work_id,MPI_COMM_WORLD,&req1);
         }
         else if (work_id == send_id+1){
-            MPI_Recv(&secret,1,MPI_INT,send_id, send_id, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Irecv(&secret,1,MPI_INT,send_id, send_id, MPI_COMM_WORLD, &req2);
+            MPI_Wait(&req2,&status);
             printf("ID %d received secret: %d\n", work_id,secret);
             secret = secret + 1;
         }
-        MPI_Barrier(MPI_COMM_WORLD);
     }
-
     MPI_Finalize();
 
     return 0;
