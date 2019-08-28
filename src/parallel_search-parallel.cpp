@@ -17,6 +17,7 @@ std::pair<double,std::vector<int>> load_file(const std::string filename){
     /* File b.data has the target value on the first line
        The remaining 300 lines of b.data have the values for the b array */
     std::ifstream infile (filename);
+    if (not infile.good()) throw std::runtime_error("File not found");
     /* read in target */
 
     std::string line;
@@ -65,12 +66,12 @@ int main (int argc, char *argv[])
     int recvcount;
 
     int target;
-    std::string outfilename = "../data/found_" + std::to_string(work_id) +".data";
+    std::string outfilename = "data/found_" + std::to_string(work_id) +".data";
 
 
     if(work_id == MASTER){
         std::cout << "Loading file from master" << std::endl;
-        std::tie(target,global_array) = load_file("../data/b.data");
+        std::tie(target,global_array) = load_file("data/b.data");
         // Split the global array into local arrays. Because the number of items may not be divisible
         // by the number of workers, we need to do this with variable lengt scatter, Scatterv.
         int global_size = global_array.size();
@@ -125,7 +126,7 @@ int main (int argc, char *argv[])
     MPI_Gatherv(match_array.data(),match_array.size(),MPI_INT,allmatches.data(),matchsizes.data(),displacements.data(),MPI_INT,MASTER,MPI_COMM_WORLD );
     //let master write all the results into a single file
     if(work_id == MASTER){
-        std::ofstream masteroutfile("../data/found_parallel.data");
+        std::ofstream masteroutfile("data/found_parallel.data");
         for(auto & match :allmatches){
             masteroutfile << match << std::endl ;
         }

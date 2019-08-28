@@ -3,7 +3,7 @@ project(mpi-lab2)
 enable_language(CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake-modules)
 
-add_executable(${PROJECT_NAME} src/pi_parallel.cpp src/class_tic_toc.cpp)
+add_executable(${PROJECT_NAME} src/parallel_search-parallel.cpp src/class_tic_toc.cpp)
 
 ####################
 ###  Link Eigen  ###
