@@ -18,7 +18,7 @@ class_tic_toc t_pi;
 
 
 double dboard (int darts);
-constexpr unsigned int DARTS  = 50000;     /* number of throws at dartboard */
+constexpr unsigned int DARTS  = 100000;     /* number of throws at dartboard */
 constexpr unsigned int ROUNDS = 1000;       /* number of times "darts" is iterated */
 constexpr unsigned int MASTER = 0;        /* task ID of master task */
 
@@ -56,20 +56,20 @@ int main (int argc, char *argv[])
         homepi = ((homepi * i) + pi)/(i + 1);
         i++;
         t_pi.toc();
-        local_time = t_pi.get_measured_time() * 1000; // Count in ms
-        printf("ID: %d:  After %8d throws in %d rounds, the average value of pi = %10.8f. Time: %5.1f ms \n",
-               work_id,home_throws,i,homepi,local_time);
+
 
     }
-
+    local_time = t_pi.get_measured_time() * 1000; // Count in ms
+    printf("ID: %d:  After %10d throws in %5d rounds, the average value of pi = %10.8f. Time: %5.1f ms \n",
+           work_id,home_throws,i,homepi,local_time);
     // Collect worker averages in master
     MPI_Reduce(&local_time, &total_time,1,MPI_DOUBLE, MPI_SUM, MASTER, MPI_COMM_WORLD);
     MPI_Reduce(&home_throws, &sum_throws,1,MPI_INT, MPI_SUM, MASTER, MPI_COMM_WORLD);
     MPI_Reduce(&homepi, &pisum,1,MPI_DOUBLE, MPI_SUM, MASTER, MPI_COMM_WORLD);
     if(work_id == MASTER){
         avepi = pisum / work_size;
-        printf("   After %8d throws and %5.2f ms in total (%5.1f ms avg), the average value of pi = %10.8f\n",
-               sum_throws,total_time, total_time/work_size,avepi);
+        printf("FINAL:  After %10d throws in %5d rounds, the average value of pi = %10.8f. Time %5.2f ms in total (%5.1f ms avg),\n",
+               sum_throws,ROUNDS,avepi,total_time, total_time/work_size);
     }
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Finalize();

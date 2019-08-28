@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
-project(mpi-lab1)
+project(mpi-lab2)
 enable_language(CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake-modules)
 
-add_executable(${PROJECT_NAME} src/game_of_life-parallel.cpp)
+add_executable(${PROJECT_NAME} src/pi_parallel.cpp src/class_tic_toc.cpp)
 
 ####################
 ###  Link Eigen  ###
