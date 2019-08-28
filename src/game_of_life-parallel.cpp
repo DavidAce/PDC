@@ -103,7 +103,13 @@ int main(int argc, char *argv[])
 
     /*  Iterations are done; sum the number of live cells */
     isum = old_board.sum();
-    printf("\nNumber of live cells = %d\n", isum);
+    std::cout << "Number of live cells = " << isum << std::endl;
+    int total_sum;
+    MPI_Reduce(&isum, &total_sum,1,MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    if(work_id == 0){
+        std::cout << "Total number of live cells = " << total_sum << std::endl;
+    }
+
     MPI_Finalize();
 
     return 0;
