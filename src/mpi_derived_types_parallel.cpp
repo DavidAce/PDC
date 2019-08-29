@@ -12,7 +12,10 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 constexpr int STL_HDR_SIZE = 80;
 
 typedef struct {
