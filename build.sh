@@ -1,7 +1,8 @@
 #/bin/bash
-module purge
-module load cuda/9.1
+#module purge
+module load PrgEnv-cray/6.0.5
 module load gcc/6.2.0
+module load cray-mpich
 module load cmake/3.11.4
 
 export CC=gcc

@@ -57,12 +57,16 @@ void stl_read(const std::string &fname, stl_model_cpp &model) {
 
     int nlocal =  (model.n_tri + pe_size - pe_rank - 1) / pe_size;
     int offset = 0;
+    int hdr_offset = STL_HDR_SIZE * sizeof(char);
+
     MPI_Exscan(&nlocal, &offset,  1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Barrier(MPI_COMM_WORLD);
-    std::cout << "Read ID: " << pe_rank << " nlocal: " << nlocal << " offset: " << offset << " + " << std::to_string(STL_HDR_SIZE) << std::endl;
+    int size_packed;
+    MPI_Type_size(stl_triangle_mpi_packed,&size_packed);
+    offset *= size_packed;
+    std::cout << "Read ID: " << pe_rank << " nlocal: " << nlocal << " offset: " << offset << " + " << std::to_string(hdr_offset) << std::endl;
+
     /* Allocate memory for triangles, and read them */
     model.tri.resize(nlocal);
-    offset += STL_HDR_SIZE;
     MPI_File_read_at_all(infile, offset, model.tri.data(), nlocal, stl_triangle_mpi_packed, MPI_STATUS_IGNORE );
     MPI_File_close(&infile);
     if (pe_rank == 0) printf("Done\n");
@@ -71,7 +75,6 @@ void stl_read(const std::string &fname, stl_model_cpp &model) {
 
 void stl_write(const std::string &fname, stl_model_cpp &model) {
     int pe_size, pe_rank;
-
     MPI_Comm_size(MPI_COMM_WORLD, &pe_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &pe_rank);
     MPI_File outfile;
@@ -94,8 +97,11 @@ void stl_write(const std::string &fname, stl_model_cpp &model) {
     MPI_Exscan(&nlocal, &offset, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
     MPI_Reduce(&nlocal, &ntotal, 1,MPI_INT,MPI_SUM,0,MPI_COMM_WORLD);
     std::cout << "Write ID: " << pe_rank << " nlocal: " << nlocal << " offset: "  << " + " << std::to_string(STL_HDR_SIZE)<< offset << std::endl;
-    offset += STL_HDR_SIZE;
-    MPI_File_write_at_all(outfile, offset, model.tri.data(), nlocal, stl_triangle_mpi_packed, MPI_STATUS_IGNORE);
+    int size_packed;
+    MPI_Type_size(stl_triangle_mpi_packed,&size_packed);
+    offset *= size_packed;
+
+    MPI_File_write_at_all(outfile, offset, model.tri.data()+STL_HDR_SIZE, nlocal, stl_triangle_mpi_packed, MPI_STATUS_IGNORE);
     MPI_File_close(&outfile);
     if (pe_rank == 0) printf("Wrote: %d triangles\n", ntotal);
     if (pe_rank == 0) printf("Done\n");
@@ -103,9 +109,12 @@ void stl_write(const std::string &fname, stl_model_cpp &model) {
 
 
 int main(int argc, char **argv) {
-    stl_model_cpp model;
-
     MPI_Init(&argc, &argv);
+
+    stl_model_cpp model;
+    int pe_size, pe_rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &pe_size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &pe_rank);
 
     int len[5] = {3,3,3,3,1};
     MPI_Datatype types[5] = {MPI_FLOAT,MPI_FLOAT,MPI_FLOAT,MPI_FLOAT,MPI_UINT16_T};
@@ -119,13 +128,23 @@ int main(int argc, char **argv) {
     base = displ[0];
     for (int i = 0; i < 5; i++) MPI_Aint_diff(displ[i],base);
     MPI_Type_create_struct(5,len, displ,types,&stl_triangle_mpi_struct);
+    MPI_Type_commit(&stl_triangle_mpi_struct);
 
     MPI_Get_address(&dummy + 1 , &sizeofstruct);
     sizeofstruct = MPI_Aint_diff(sizeofstruct,base);
     MPI_Type_create_resized(stl_triangle_mpi_struct, 0, sizeofstruct, &stl_triangle_mpi_packed);
     MPI_Type_commit(&stl_triangle_mpi_packed);
 
+    if(pe_rank == 0){
+        int size_packed,size_struct;
+        MPI_Type_size(stl_triangle_mpi_struct,&size_struct);
+        MPI_Type_size(stl_triangle_mpi_packed,&size_packed);
 
+        std::cout << "Size of stl_triangle_cpp        " << sizeof(stl_triangle_cpp) << std::endl;
+        std::cout << "Size of stl_triangle_mpi_packed " << size_packed << std::endl;
+        std::cout << "Size of stl_triangle_mpi_struct " << size_struct << std::endl;
+
+    }
 
 
     stl_read("data/sphere.stl", model);
