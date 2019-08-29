@@ -60,18 +60,30 @@ void stl_read(const std::string &fname, stl_model_cpp &model) {
     if (pe_rank == 0) printf("Found: %d triangles\n", model.n_tri);
 
     int nlocal =  (model.n_tri + pe_size - pe_rank - 1) / pe_size;
-    int offset = 0;
-    int hdr_offset = STL_HDR_SIZE * sizeof(char);
-
-    MPI_Exscan(&nlocal, &offset,  1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
     int size_packed;
+    MPI_Offset filesize;
+    MPI_File_get_size(infile,&filesize);
     MPI_Type_size(stl_triangle_mpi_packed,&size_packed);
-    offset *= size_packed;
-    std::cout << "Read ID: " << pe_rank << " nlocal: " << nlocal << " offset: " << offset << " + " << std::to_string(hdr_offset) << std::endl;
-
+    MPI_Offset offset = 0;
+    MPI_Exscan(&nlocal, &offset,  1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
+    int hdr_offset = STL_HDR_SIZE * sizeof(char);
+    int n_tri_offset = 1 * sizeof(uint32_t);
+    offset = hdr_offset + n_tri_offset + offset*size_packed;
     /* Allocate memory for triangles, and read them */
+    stl_triangle_cpp *tri = new stl_triangle_cpp[model.n_tri ];
+
     model.tri.resize(nlocal);
-    MPI_File_read_at_all(infile, offset, model.tri.data(), nlocal, stl_triangle_mpi_packed, MPI_STATUS_IGNORE );
+    std::cout   << "Read ID: "      << pe_rank
+                << " file size: "   << filesize
+                << " nlocal: "      << nlocal
+                << " read bytes: "  << nlocal * size_packed
+                << " allocated: "   << sizeof(model.tri[0]) * model.tri.size()
+                << " offset: "      << offset
+                << std::endl;
+
+
+
+    MPI_File_read_at_all(infile, offset,tri, 1, stl_triangle_mpi_packed, MPI_STATUS_IGNORE );
     MPI_File_close(&infile);
     if (pe_rank == 0) printf("Done\n");
 

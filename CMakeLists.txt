@@ -12,7 +12,7 @@ set(PROFILE_OPTIONS          -DNDEBUG -O3 -lprofiler -g  -ftime-report)
 
 
 add_executable(${PROJECT_NAME} src/mpi_derived_types_parallel.cpp)
-
+target_link_libraries(${PROJECT_NAME} -Wl,--allow-multiple-definition,--undefined=malloc,--undefined=_ZdaPv /path/to/ddt/lib/64/libdmallocxx.a)
 ###########################################
 ###  Apply RELEASE/DEBUG compile flags  ###
 ###########################################
