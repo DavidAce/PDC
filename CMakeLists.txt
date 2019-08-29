@@ -8,11 +8,11 @@ add_executable(${PROJECT_NAME} src/mpi_derived_types_parallel.cpp)
 ####################
 ###  Link Eigen  ###
 ####################
-#set(BUILD_DIRECTORY   ${PROJECT_SOURCE_DIR}/cmake-build-libs)
-#set(INSTALL_DIRECTORY ${PROJECT_SOURCE_DIR}/libs)
-#option(DOWNLOAD_EIGEN3    "Download and install Eigen3 if not found"            ON)
-#include(cmake-modules/Fetch_Eigen3.cmake)                   # Eigen library
-#target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
+set(BUILD_DIRECTORY   ${PROJECT_SOURCE_DIR}/cmake-build-libs)
+set(INSTALL_DIRECTORY ${PROJECT_SOURCE_DIR}/libs)
+option(DOWNLOAD_EIGEN3    "Download and install Eigen3 if not found"            ON)
+include(cmake-modules/Fetch_Eigen3.cmake)                   # Eigen library
+target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
 
 
 ##################
