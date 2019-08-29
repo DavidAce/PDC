@@ -6,11 +6,7 @@
 #include <string>
 #include <mpi.h>
 #include <fstream>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
+#include <iostream>
 #include <vector>
 
 constexpr int STL_HDR_SIZE = 80;

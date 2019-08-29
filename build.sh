@@ -1,5 +1,5 @@
 #/bin/bash
-module purge
+#module purge
 module load cdt/19.06
 module load cmake/3.14.5
 module load PrgEnv-cray/6.0.5
