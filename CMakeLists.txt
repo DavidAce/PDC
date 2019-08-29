@@ -8,11 +8,12 @@ set(COMMON_OPTIONS -g -Wall -march=haswell -mtune=haswell)
 set(DEBUG_OPTIONS            -Wpedantic -Wextra -O0 -g3 -fstack-protector -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2)
 set(RELWITHDEBINFO_OPTIONS   -Wpedantic -Wextra -O1 -g3 -fstack-protector -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2)
 set(RELEASE_OPTIONS          -DNDEBUG -O3 )
-set(PROFILE_OPTIONS          -DNDEBUG -O3 -lprofiler -g  -ftime-report)
+set(PROFILE_OPTIONS          -DNDEBUG -O3 -fopt-info -fopt-info-missed -lprofiler -g  -ftime-report)
 
 
 add_executable(${PROJECT_NAME} src/mpi_derived_types_parallel.cpp)
-target_link_libraries(${PROJECT_NAME}  PRIVATE -Wl,--allow-multiple-definition,--undefined=malloc,--undefined=_ZdaPv /pdc/vol/allinea-forge/19.1.1/lib/64/libdmallocxx.a)
+
+#target_link_libraries(${PROJECT_NAME}  PRIVATE -Wl,--allow-multiple-definition,--undefined=malloc,--undefined=_ZdaPv /pdc/vol/allinea-forge/19.1.1/lib/64/libdmallocxx.a)
 ###########################################
 ###  Apply RELEASE/DEBUG compile flags  ###
 ###########################################
