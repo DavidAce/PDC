@@ -3,7 +3,26 @@ project(mpi-lab3)
 enable_language(C CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake-modules)
 
+message("Using microarchitechture: haswell")
+set(COMMON_OPTIONS -g -Wall -march=haswell -mtune=haswell)
+set(DEBUG_OPTIONS            -Wpedantic -Wextra -O0 -g3 -fstack-protector -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2)
+set(RELWITHDEBINFO_OPTIONS   -Wpedantic -Wextra -O1 -g3 -fstack-protector -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2)
+set(RELEASE_OPTIONS          -DNDEBUG -O3 )
+set(PROFILE_OPTIONS          -DNDEBUG -O3 -lprofiler -g  -ftime-report)
+
+
 add_executable(${PROJECT_NAME} src/mpi_derived_types_parallel.cpp)
+
+###########################################
+###  Apply RELEASE/DEBUG compile flags  ###
+###########################################
+target_compile_options (${PROJECT_NAME} PRIVATE ${COMMON_OPTIONS})                                          ### common options
+target_compile_options (${PROJECT_NAME} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_OPTIONS}>")                      ### debug build options
+target_compile_options (${PROJECT_NAME} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")                  ### Release build options
+target_compile_options (${PROJECT_NAME} PRIVATE "$<$<CONFIG:RELWITHDEBINFO>:${RELWITHDEBINFO_OPTIONS}>")    ### Release build with debug info options
+target_compile_options (${PROJECT_NAME} PRIVATE "$<$<CONFIG:PROFILE>:${PROFILE_OPTIONS}>")                  ### Profiling build options
+
+
 
 ####################
 ###  Link Eigen  ###
