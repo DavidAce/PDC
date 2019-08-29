@@ -33,8 +33,7 @@ MPI_Datatype stl_triangle_mpi_packed;
 typedef struct {
     char hdr[STL_HDR_SIZE];	/* Header */
     uint32_t n_tri;		/* Number of triangles */
-//    std::vector<stl_triangle_cpp> tri;
-    stl_triangle_cpp * tri;
+    std::vector<stl_triangle_cpp> tri;
 } stl_model_cpp;
 
 
@@ -62,26 +61,26 @@ void stl_read(const std::string &fname, stl_model_cpp &model) {
     model.n_tri = (n_tri + pe_size - pe_rank - 1) / pe_size;
     printf("ID %d: Found: %d triangles\n", pe_rank, model.n_tri);
 
-    int size_packed;
+    int size_struct;
     MPI_Offset filesize,position;
     MPI_File_get_size(infile,&filesize);
     MPI_File_get_position(infile, &position);
-    MPI_Type_size(stl_triangle_mpi_packed,&size_packed);
+    MPI_Type_size(stl_triangle_mpi_packed,&size_struct);
     /* Allocate memory for triangles, and read them */
-//    model.tri.resize(model.n_tri);
-    model.tri = new stl_triangle_cpp[model.n_tri];
+    model.tri.resize(model.n_tri);
+//    model.tri = new stl_triangle_cpp[model.n_tri];
     /* Define offsets */
     MPI_File_seek( infile, 0, MPI_SEEK_SET );
     uint offset = 0;
     MPI_Exscan(&model.n_tri, &offset,  1, MPI_UNSIGNED, MPI_SUM, MPI_COMM_WORLD);
 
-    MPI_Offset byte_offset = STL_HDR_SIZE * sizeof(char) + sizeof(uint32_t) + offset*size_packed;
+    MPI_Offset byte_offset = STL_HDR_SIZE * sizeof(char) + sizeof(uint32_t) + offset * size_struct;
     std::cout   << "Read ID: "      << pe_rank
                 << " file size: "   << filesize
                 << " position: "    << position
                 << " n_tri: "       << n_tri
                 << " model.n_tri: " << model.n_tri
-                << " read bytes: "  << model.n_tri * size_packed
+                << " read bytes: "  << model.n_tri * size_struct
                 << " allocated: "   << sizeof(model.tri[0]) * model.n_tri
                 << " offset: "      << offset
                 << " byte_offset: " << byte_offset
@@ -90,18 +89,16 @@ void stl_read(const std::string &fname, stl_model_cpp &model) {
 
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Status status;
-    int err_read = MPI_File_read_at_all(infile, byte_offset , model.tri, model.n_tri, stl_triangle_mpi_packed, &status );
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    if (err_read != 0) throw std::runtime_error("ID " + std::to_string(pe_rank) + "could not read");
-    if (status.MPI_ERROR <= 0){
-        std::cout << "ID " << pe_rank <<  " could not read, status error: " << status.MPI_ERROR << std::endl;
-        exit(1);
+    int err_read = MPI_File_read_at_all(infile, byte_offset , model.tri.data(), model.n_tri, stl_triangle_mpi_packed, &status );
+//    MPI_Barrier(MPI_COMM_WORLD);
+//    if (err_read != 0) throw std::runtime_error("ID " + std::to_string(pe_rank) + "could not read");
+//    if (status.MPI_ERROR <= 0){
+//        std::cout << "ID " << pe_rank <<  " could not read, status error: " << status.MPI_ERROR << std::endl;
+//        exit(1);
 //        throw std::runtime_error("ID " + std::to_string(pe_rank) + " could not read, status error: " + std::to_string(status.MPI_ERROR));
-        MPI_Finalize();
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);
+//        MPI_Finalize();
+//    }
+//    MPI_Barrier(MPI_COMM_WORLD);
     MPI_File_close(&infile);
     if (pe_rank == 0) printf("Done\n");
 
@@ -112,7 +109,7 @@ void stl_write(const std::string &fname, stl_model_cpp &model) {
     MPI_Comm_size(MPI_COMM_WORLD, &pe_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &pe_rank);
     MPI_File outfile;
-    int err = MPI_File_open(MPI_COMM_WORLD,fname.c_str(),MPI_MODE_CREATE + MPI_MODE_WRONLY, MPI_INFO_NULL,&outfile );
+    int err = MPI_File_open(MPI_COMM_WORLD,fname.c_str(),MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL,&outfile );
     if (err < 0) throw std::runtime_error("File not found");
     if (pe_rank == 0) std::cout << "Writing STL file: " << fname << std::endl;
 
@@ -120,22 +117,38 @@ void stl_write(const std::string &fname, stl_model_cpp &model) {
     MPI_File_write_all(outfile, model.hdr, STL_HDR_SIZE, MPI_CHAR,MPI_STATUS_IGNORE);
 
     /* Write number of triangles */
-    MPI_File_write_all(outfile, &model.n_tri,1,MPI_UINT32_T, MPI_STATUS_IGNORE);
-    if (pe_rank == 0) printf("Writing: %d triangles\n", model.n_tri);
+    uint ntotal;
+    MPI_Allreduce(&model.n_tri, &ntotal, 1,MPI_UNSIGNED,MPI_SUM,MPI_COMM_WORLD);
+    MPI_File_write_all(outfile, &ntotal,1,MPI_UNSIGNED, MPI_STATUS_IGNORE);
+    if (pe_rank == 0) printf("Writing: %d triangles\n", ntotal);
 
 
+
+    int size_struct;
+    MPI_Offset filesize,position;
+    MPI_File_get_size(outfile,&filesize);
+    MPI_File_get_position(outfile, &position);
+    MPI_Type_size(stl_triangle_mpi_packed,&size_struct);
     /* Write all triangles */
-    int nlocal = model.n_tri;
-    int offset = 0;
-    int ntotal;
-    MPI_Exscan(&nlocal, &offset, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Reduce(&nlocal, &ntotal, 1,MPI_INT,MPI_SUM,0,MPI_COMM_WORLD);
-    std::cout << "Write ID: " << pe_rank << " nlocal: " << nlocal << " offset: "  << " + " << std::to_string(STL_HDR_SIZE)<< offset << std::endl;
-    int size_packed;
-    MPI_Type_size(stl_triangle_mpi_packed,&size_packed);
-    offset *= size_packed;
+    uint offset = 0;
+    MPI_Exscan(&model.n_tri, &offset, 1,MPI_UNSIGNED, MPI_SUM, MPI_COMM_WORLD);
 
-    MPI_File_write_at_all(outfile, offset, model.tri, nlocal, stl_triangle_mpi_packed, MPI_STATUS_IGNORE);
+    MPI_Type_size(stl_triangle_mpi_packed,&size_struct);
+    MPI_Offset byte_offset = STL_HDR_SIZE * sizeof(char) + sizeof(uint32_t) + offset * sizeof(stl_triangle_cpp);
+
+    std::cout   << "Write ID: "     << pe_rank
+                << " file size: "   << filesize
+                << " position: "    << position
+                << " ntotal: "      << ntotal
+                << " model.n_tri: " << model.n_tri
+                << " write bytes: " << model.n_tri * size_struct
+                << " allocated: "   << sizeof(model.tri[0]) * model.n_tri
+                << " offset: "      << offset
+                << " byte_offset: " << byte_offset
+                << std::endl;
+
+
+    MPI_File_write_at_all(outfile, byte_offset, model.tri.data(), model.n_tri,stl_triangle_mpi_packed, MPI_STATUS_IGNORE);
     MPI_File_close(&outfile);
     if (pe_rank == 0) printf("Wrote: %d triangles\n", ntotal);
     if (pe_rank == 0) printf("Done\n");
@@ -152,26 +165,23 @@ int main(int argc, char **argv) {
 
     int len[5] = {3,3,3,3,1};
     MPI_Datatype types[5] = {MPI_FLOAT,MPI_FLOAT,MPI_FLOAT,MPI_FLOAT,MPI_UNSIGNED_SHORT};
-    MPI_Aint base,displ[5], sizeofstruct;
-    stl_triangle_cpp triangle;
-    MPI_Get_address(&triangle.n[0]     , displ + 0);
-    MPI_Get_address(&triangle.v1[0]    , displ + 1);
-    MPI_Get_address(&triangle.v2[0]    , displ + 2);
-    MPI_Get_address(&triangle.v3[0]    , displ + 3);
-    MPI_Get_address(&triangle.attrib, displ + 4);
-    base = displ[0];
+
+
+    MPI_Aint displ[5] = {
+            offsetof(stl_triangle_cpp, n),
+            offsetof(stl_triangle_cpp, v1),
+            offsetof(stl_triangle_cpp, v2),
+            offsetof(stl_triangle_cpp, v3),
+            offsetof(stl_triangle_cpp, attrib)};
+
     int err;
-    for (int i = 0; i < 5; i++) MPI_Aint_diff(displ[i],base);
+
     err = MPI_Type_create_struct(5,len, displ,types,&stl_triangle_mpi_struct);
     if (err != 0 ) throw std::runtime_error("Error creating struct: stl_triangle_mpi_struct");
     err = MPI_Type_commit(&stl_triangle_mpi_struct);
     if (err != 0 ) throw std::runtime_error("Error commiting struct: stl_triangle_mpi_struct");
 
-    MPI_Get_address(&triangle + 1 , &sizeofstruct);
-    sizeofstruct = MPI_Aint_diff(sizeofstruct,base);
-    err = MPI_Type_create_resized(stl_triangle_mpi_struct, 0, sizeofstruct, &stl_triangle_mpi_packed);
-    if (err != 0 ) throw std::runtime_error("Error creating struct: stl_triangle_mpi_packed");
-
+    MPI_Type_dup(stl_triangle_mpi_struct,&stl_triangle_mpi_packed);
     err = MPI_Type_commit(&stl_triangle_mpi_packed);
 
     if (err != 0 ) throw std::runtime_error("Error commiting struct: stl_triangle_mpi_packed");
