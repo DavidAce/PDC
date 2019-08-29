@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(arm-lab1)
-enable_language(C)
+enable_language(CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake-modules)
 
 message("Using microarchitechture: haswell")
@@ -11,7 +11,7 @@ set(RELEASE_OPTIONS          -DNDEBUG -O3 )
 set(PROFILE_OPTIONS          -DNDEBUG -O3 -fopt-info -fopt-info-missed -lprofiler -g  -ftime-report)
 
 
-add_executable(${PROJECT_NAME} src/ommult.c)
+add_executable(${PROJECT_NAME} src/ommult.cpp)
 
 target_link_libraries(${PROJECT_NAME}  PRIVATE -Wl,--allow-multiple-definition,--undefined=malloc,--undefined=_ZdaPv /pdc/vol/allinea-forge/19.1.1/lib/64/libdmallocxx.a)
 ###########################################
