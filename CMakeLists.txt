@@ -18,12 +18,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
 ##################
 ###  Link MPI  ###
 ##################
-set(MPI_CXX_COMPILER CC)
-find_package(MPI REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${MPI_LIBRARIES})
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
-set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
-target_include_directories(${PROJECT_NAME} PRIVATE ${MPI_INCLUDE_PATH})
+#set(MPI_CXX_COMPILER CC)
+#find_package(MPI REQUIRED)
+#target_link_libraries(${PROJECT_NAME} PRIVATE ${MPI_LIBRARIES})
+#set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+#set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
+#target_include_directories(${PROJECT_NAME} PRIVATE ${MPI_INCLUDE_PATH})
 
 
 
